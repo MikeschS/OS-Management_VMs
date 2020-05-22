@@ -25,7 +25,7 @@ Datum: 10.06.2020\par
 \newpage
 \section{Introduction}
 This is a simple guide to show the steps needed to set up virtual machines in Proxmox and install an SSH daemon and NGINX. Furthermore a VPN connection between two VMs will be established and a firewall set up.
-\\\\
+\\
 I will be using following tools and environments:
 \begin{itemize}
 \item Proxmox
@@ -37,8 +37,27 @@ I will be using following tools and environments:
 \end{itemize}
 
 \newpage
-\section{Setup in Proxmox}
-Example text
+\section{Setup of VMs in Proxmox}
+Proxmox VE (Virtual Environment) is an open-source solution for enterprise virtualization utilizing the KVM hypervisor running on Debian. I will skip the setup of the Proxmox server as it is a rather long an tedious process and I already have a Proxmox server running at home.
+\\
+At first we will upload the ISO of Ubuntu server to the proxmox server in order to start our VMs from it.
+
+\subsection{VM Configuration}
+Before setting up the VMs we have to make sure that there is a network bridge configured for the LAN in which the client will be placed.
+\\
+We can leave the defaults of Proxmox when creating the VM. We just have to define following things:
+\begin{itemize}
+\item ISO Image: ubuntu server
+\item Disk Size: 10GB
+\item CPU Cores: 2
+\item RAM: 2048 MB
+\item Network Bridge: your LAN Bridge
+\end{itemize}
+Now the settings can be confirmed and the VM can be started.
+
+\subsection{Ubuntu server installation}
+
+\subsection{Cloning the VM}
 
 \newpage
 \section{SSH Daemon Setup auf VM1}
