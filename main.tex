@@ -172,7 +172,69 @@ sudo service ssh restart
 
 \newpage
 \section{NGINX Setup}
-Example text
+In this chapter we will install an nginx server on both VMs. One will act as a forwarding proxy to the other server.
+
+\subsection{NGINX Installation}
+Install the needed packages with this command:
+\begin{verbatim}
+sudo apt install nginx -y
+\end{verbatim}
+
+If needed, enter your user password.
+
+To start your nginx server enter this command:
+\begin{verbatim}
+sudo systemctl start nginx
+\end{verbatim}
+
+Check the status of the server with this command:
+\begin{verbatim}
+sudo systemctl status nginx
+\end{verbatim}
+
+To start your nginx server along with the VM execute following command:
+\begin{verbatim}
+sudo systemctl enable nginx
+\end{verbatim}
+
+\subsection{Webpage configuration on VM1}
+There is a default page created on install, so we don´t need to do anything more here.
+
+However we can rename the file /var/www/html/index.nginx-debian.html to /var/www/html/index.html with the command:
+\begin{verbatim}
+sudo mv /var/www/html/index.nginx-debian.html 
+/var/www/html/index.html
+\end{verbatim}
+
+And we can change the file to make clear that we are the server on VM1. Using this command ...
+\begin{verbatim}
+sudo nano /var/www/html/index.html
+\end{verbatim}
+
+... add some text the file.
+
+\subsection{NGINX proxy configuration on VM2}
+We need to rewrite the configuration file of the nginx server site to forward the traffic to vm1. Use this command to edit the file:
+\begin{verbatim}
+sudo nano /etc/nginx/sites-enabled/default
+\end{verbatim}
+
+Rewrite the file so the uncommented parts looks like this:
+\begin{verbatim}
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+	
+	location / {
+		proxy_pass http://192.168.1.91;
+	}
+}
+\end{verbatim}
+
+To reflect the changes restart your nginx server:
+\begin{verbatim}
+sudo systemctl restart nginx
+\end{verbatim}
 
 \newpage
 \section{VPN Setup}
