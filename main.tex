@@ -4,6 +4,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{hyperref}
 \begin{document}
 
 \huge
@@ -43,9 +44,9 @@ Proxmox VE (Virtual Environment) is an open-source solution for enterprise virtu
 At first we will upload the ISO of Ubuntu server to the proxmox server in order to start our VMs from it.
 
 \subsection{VM Configuration}
-Before setting up the VMs we have to make sure that there is a network bridge configured for the LAN in which the client will be placed.
+Before setting up the two VMs we have to make sure that there is a network bridge configured for the LAN in which the client will be placed.
 \\
-We can leave the defaults of Proxmox when creating the VM. We just have to define following things:
+We can leave the defaults of Proxmox when creating the VMs. We just have to define following things:
 \begin{itemize}
 \item ISO Image: ubuntu server
 \item Disk Size: 10GB
@@ -53,13 +54,14 @@ We can leave the defaults of Proxmox when creating the VM. We just have to defin
 \item RAM: 2048 MB
 \item Network Bridge: your LAN Bridge
 \end{itemize}
-Now the settings can be confirmed and the VM be started.
+Now the settings can be confirmed and the VMs be started.
 
-\subsection{Ubuntu server installation}
-After the VM was started a installer will guide you through the process.
+\subsection{Ubuntu server installation on VM1}
+\label{serverinstallation}
+After the first VM was started a installer will guide you through the process.
 
 \subsubsection{Language selection}
-Select an apropriate language. We will select english.
+Select an appropriate language. We will select english.
 
 \subsubsection{optional installer upgrade}
 When prompted with an optional installer upgrade this should be accepted. The installer will continue here with the newest version.
@@ -68,6 +70,7 @@ When prompted with an optional installer upgrade this should be accepted. The in
 Select the appropriate keyboard layout. We will use the German (Austria) layout.
 
 \subsubsection{Network connections}
+\label{networkconnections}
 Here the previously selected LAN Bridge should be shown. Configure a static IPv4 address. In this example the address 192.168.1.91/24 will be used. 
 
 \subsubsection{Proxy configuration}
@@ -80,9 +83,11 @@ If needed a different archive mirror can be selected. This example will use the 
 Here the previously defined storage should be shown. In this example the entire disk will be used for the VM. Confirm the selection two times to start writing to the disk.
 
 \subsubsection{Profile setup}
+\label{profilesetup}
 Enter your preferred login credentials and give your vm a name. In this example it will be named virtualmachine1.
 
 \subsubsection{SSH setup}
+\label{sshsetup}
 As we need a ssh daemon on this vm we will install the openssh server here, although we will not import any ssh identities.
 
 \subsubsection{Server snaps}
@@ -91,11 +96,79 @@ If needed special services can simply be installed from here. This example will 
 \subsubsection{Installation}
 Wait for the installation to finish and then reboot.
 
-\subsection{Cloning the VM}
+\subsection{Ubuntu server installation on VM2}
+Follow \autoref{serverinstallation} a second time with some minor differences:
+\begin{itemize}
+\item \autoref{networkconnections}: use address 192.168.1.92/24.
+\item \autoref{profilesetup}: Change login credentials accordingly and change the servers name to virtualmachine2.
+\item \autoref{sshsetup}: Skip this as we only need an ssh daemon on one VM.
+\end{itemize}
 
 \newpage
 \section{SSH Daemon configuration auf VM1}
-Example text
+The open ssh server must be configured to listen on port 41500, allow only unpriviliged users and to use only public key authentication.
+
+After logging in with a sudo user (user with access to root actions) open the config file with the command (enter the password if prompted):
+
+\begin{verbatim}
+sudo nano /etc/ssh/sshd_config
+\end{verbatim}
+
+\subsection{Port Configuration}
+Change following line to change the listening port of the ssh server.
+
+\begin{verbatim}
+#Port 22
+\end{verbatim}
+to
+\begin{verbatim}
+Port 41500
+\end{verbatim}
+
+In order to reflect the changes the server must be restarted with the command:
+\begin{verbatim}
+sudo service ssh restart
+\end{verbatim}
+
+\subsection{User access configuration}
+Change following line to allow only unpriviliged users to access to the server.
+
+\begin{verbatim}
+#PermitRootLogin prohibit-password
+\end{verbatim}
+to
+\begin{verbatim}
+PermitRootLogin no
+\end{verbatim}
+
+In order to reflect the changes the server must be restarted with the command:
+\begin{verbatim}
+sudo service ssh restart
+\end{verbatim}
+
+\subsection{Enable only public key authentication}
+Change following line to disallow password authentication in favour of public key authentication for the ssh server.
+
+\begin{verbatim}
+#PasswordAuthentication yes
+\end{verbatim}
+to
+\begin{verbatim}
+PasswordAuthentication no
+\end{verbatim}
+and
+\begin{verbatim}
+#PubkeyAuthentication yes
+\end{verbatim}
+to
+\begin{verbatim}
+PubkeyAuthentication yes
+\end{verbatim}
+
+In order to reflect the changes the server must be restarted with the command:
+\begin{verbatim}
+sudo service ssh restart
+\end{verbatim}
 
 \newpage
 \section{NGINX Setup}
