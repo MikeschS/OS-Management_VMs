@@ -53,14 +53,48 @@ We can leave the defaults of Proxmox when creating the VM. We just have to defin
 \item RAM: 2048 MB
 \item Network Bridge: your LAN Bridge
 \end{itemize}
-Now the settings can be confirmed and the VM can be started.
+Now the settings can be confirmed and the VM be started.
 
 \subsection{Ubuntu server installation}
+After the VM was started a installer will guide you through the process.
+
+\subsubsection{Language selection}
+Select an apropriate language. We will select english.
+
+\subsubsection{optional installer upgrade}
+When prompted with an optional installer upgrade this should be accepted. The installer will continue here with the newest version.
+
+\subsubsection{Keyboard layout}
+Select the appropriate keyboard layout. We will use the German (Austria) layout.
+
+\subsubsection{Network connections}
+Here the previously selected LAN Bridge should be shown. Configure a static IPv4 address. In this example the address 192.168.1.91/24 will be used. 
+
+\subsubsection{Proxy configuration}
+If needed a proxy can be defined here. In this example this field will be left blank.
+
+\subsubsection{Archive mirror configuration}
+If needed a different archive mirror can be selected. This example will use the default one.
+
+\subsubsection{Storage configuration}
+Here the previously defined storage should be shown. In this example the entire disk will be used for the VM. Confirm the selection two times to start writing to the disk.
+
+\subsubsection{Profile setup}
+Enter your preferred login credentials and give your vm a name. In this example it will be named virtualmachine1.
+
+\subsubsection{SSH setup}
+As we need a ssh daemon on this vm we will install the openssh server here, although we will not import any ssh identities.
+
+\subsubsection{Server snaps}
+If needed special services can simply be installed from here. This example will not need any.
+
+\subsubsection{Installation}
+Wait for the installation to finish and then reboot.
 
 \subsection{Cloning the VM}
 
 \newpage
-\section{SSH Daemon Setup auf VM1}
+\section{SSH Daemon configuration auf VM1}
 Example text
 
 \newpage
