@@ -168,10 +168,83 @@ sudo chmod 755 /etc/tinc/vmvpn/tinc-*
 \end{verbatim}
 
 \subsection{VM2 Setup}
+First we´ll make a directory for the vpn we want to create (called vmvpn):
+\begin{verbatim}
+sudo mkdir -p /etc/tinc/vmvpn/hosts
+\end{verbatim}
+
+Then a file is created with the basic info for this vm:
+
+Create and open the file with...
+\begin{verbatim}
+sudo nano /etc/tinc/vmvpn/tinc.conf
+\end{verbatim}
+and paste this:
+\begin{verbatim}
+Name = vm2
+AddressFamily = ipv4
+Interface = tun0
+ConnectTo = vm1
+\end{verbatim}
+Because this config contains the ConnectTo, the vm2 will connect to vm1, whereas vm1 will only listen to incoming connections.
+
+Then the file vm2 is created in the hosts directory containing this:
+\begin{verbatim}
+Subnet = 10.0.0.2/32
+\end{verbatim}
+
+Using this command public and private keys will be generated (when prompting about filenames just press enter to use the defaults):
+\begin{verbatim}
+sudo tincd -n vmvpn -K4096
+\end{verbatim}
+
+Then two files are created which contain a shell script for starting and stopping the vm. The file /etc/tinc/vmvpn/tinc-up contains:
+\begin{verbatim}
+#!/bin/sh
+ip link set $INTERFACE up
+ip addr add 10.0.0.2/32 dev $INTERFACE
+ip route add 10.0.0.0/24 dev $INTERFACE
+\end{verbatim}
+
+The file /etc/tinc/vmvpn/tinc-down contains:
+\begin{verbatim}
+#!/bin/sh
+ip route del 10.0.0.0/24 dev $INTERFACE
+ip addr del 10.0.0.2/32 dev $INTERFACE
+ip link set $INTERFACE down
+\end{verbatim}
+
+Then we have to make these scripts executable:
+\begin{verbatim}
+sudo chmod 755 /etc/tinc/vmvpn/tinc-*
+\end{verbatim}
 
 \subsection{Key exchange}
+On VM2 send and retrieve the host files for the corresponding hosts.
+
+Copy the host files on vm1 to a directory accessibly by ssh:
+\begin{verbatim}
+sudo cp /etc/tinc/vmvpn/hosts/vm1 /tmp
+\end{verbatim}
+
+Then exchange the host files using vm2:
+\begin{verbatim}
+sudo scp /etc/tinc/vmvpn/hosts/vm2 <loginname>@192.168.1.91:/tmp
+sudo scp <loginname>@192.168.1.91:/tmp/vm1 /etc/tinc/vmvpn/hosts/
+\end{verbatim}
+
+Then remove the temporary file vm1 on vm1 and transfer vm2 host file to it´s final location:
+\begin{verbatim}
+sudo rm /tmp/vm1
+sudo mv /tmp/vm2 /etc/tinc/vmvpn/hosts/vm2
+\end{verbatim}
+
 
 \subsection{Start tinc on startup}
+To start tinc on startup we have to add it to the systemmanager (both VMs):
+\begin{verbatim}
+sudo systemctl enable tinc@vmvpn
+\end{verbatim}
 
 \newpage
 \section{NGINX Setup}
