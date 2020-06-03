@@ -37,6 +37,8 @@ I will be using following tools and environments:
 \item iptables
 \end{itemize}
 
+To say it only one time: when using nano as a file editor you can save and close by pressing CTRL+X and then Y.
+
 \newpage
 \section{Setup of VMs in Proxmox}
 Proxmox VE (Virtual Environment) is an open-source solution for enterprise virtualization utilizing the KVM hypervisor running on Debian. I will skip the setup of the Proxmox server as it is a rather long an tedious process and I already have a Proxmox server running at home.
@@ -115,6 +117,55 @@ sudo apt install tinc
 \end{verbatim}
 
 \subsection{VM1 Setup}
+First we´ll make a directory for the vpn we want to create (called vmvpn):
+\begin{verbatim}
+sudo mkdir -p /etc/tinc/vmvpn/hosts
+\end{verbatim}
+
+Then a file is created with the basic info for this vm:
+
+Create and open the file with...
+\begin{verbatim}
+sudo nano /etc/tinc/vmvpn/tinc.conf
+\end{verbatim}
+and paste this:
+\begin{verbatim}
+Name = vm1
+AddressFamily = ipv4
+Interface = tun0
+\end{verbatim}
+
+Then the file vm1 is created in the hosts directory containing this:
+\begin{verbatim}
+Address = 192.168.1.91
+Subnet = 10.0.0.1/32
+\end{verbatim}
+
+Using this command public and private keys will be generated (when prompting about filenames just press enter to use the defaults):
+\begin{verbatim}
+sudo tincd -n vmvpn -K4096
+\end{verbatim}
+
+Then two files are created which contain a shell script for starting and stopping the vm. The file /etc/tinc/vmvpn/tinc-up contains:
+\begin{verbatim}
+#!/bin/sh
+ip link set $INTERFACE up
+ip addr add 10.0.0.1/32 dev $INTERFACE
+ip route add 10.0.0.0/24 dev $INTERFACE
+\end{verbatim}
+
+The file /etc/tinc/vmvpn/tinc-down contains:
+\begin{verbatim}
+#!/bin/sh
+ip route del 10.0.0.0/24 dev $INTERFACE
+ip addr del 10.0.0.1/32 dev $INTERFACE
+ip link set $INTERFACE down
+\end{verbatim}
+
+Then we have to make these scripts executable:
+\begin{verbatim}
+sudo chmod 755 /etc/tinc/vmvpn/tinc-*
+\end{verbatim}
 
 \subsection{VM2 Setup}
 
