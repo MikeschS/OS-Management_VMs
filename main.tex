@@ -302,7 +302,7 @@ server {
 	listen [::]:80 default_server;
 	
 	location / {
-		proxy_pass http://192.168.1.91;
+		proxy_pass http://10.0.0.1;
 	}
 }
 \end{verbatim}
@@ -380,6 +380,29 @@ sudo service ssh restart
 
 \newpage
 \section{Firewall Setup}
-Example text
+Iptables is already installed on these machines so we are already ready to configure it.
+
+\subsection{Custom rules}
+To allow access to the ssh server on vm1 the execute (execute on vm1):
+\begin{verbatim}
+sudo iptables -A INPUT -p tcp --dport 41500 -j ACCEPT
+\end{verbatim}
+
+To allow access to the services on the VMs (execute on both VMs):
+\begin{verbatim}
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+\end{verbatim}
+
+To allow tinc vpn connections (execute on both VMs):
+\begin{verbatim}
+sudo iptables -A INPUT -p tcp --dport 655 -j ACCEPT
+sudo iptables -A INPUT -p udp -m udp --dport 655 -j ACCEPT
+\end{verbatim}
+
+\subsection{Fallback rule}
+To block all traffic not matching the configured rules there must be a default DROP policy (both VMs):
+\begin{verbatim}
+sudo iptables -P Input DROP
+\end{verbatim}
 
 \end{document}
